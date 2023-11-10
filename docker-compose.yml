@@ -1,0 +1,26 @@
+services:
+  metabase:
+    build: .
+    container_name: metabase
+    hostname: metabase
+    volumes: 
+      - /dev/urandom:/dev/random:ro
+      - $PWD/logging_config:/metabase.db
+    ports:
+      - 3000:3000
+    environment: 
+      JAVA_OPTS: -Dlog4j.configurationFile=file:///metabase.db/log4j2.xml
+      JAVA_TOOL_OPTIONS: -Xmx1488m -Xms500m
+    deploy:
+      resources:
+        limits:
+          cpus: '4'
+          memory: 3072M
+        reservations:
+          cpus: '4'
+          memory: 1536M
+    healthcheck:
+      test: curl --fail -X GET -I http://localhost:3000/api/health || exit 1
+      interval: 15s
+      timeout: 5s
+      retries: 10
